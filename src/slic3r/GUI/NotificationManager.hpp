@@ -108,6 +108,8 @@ public:
 		                              const std::string text,
 		                              bool more = false);
 		void         render_left_sign(ImGuiWrapper& imgui);
+		void         render_minimize_button(ImGuiWrapper& imgui,
+			                                const float win_pos_x, const float win_pos_y);
 		void         on_text_click();
 
 		const NotificationData m_data;
@@ -119,6 +121,7 @@ public:
 		long             m_remaining_time;
 		bool             m_counting_down;
 		long             m_last_remaining_time;
+		bool             m_hidden               { false };
 		bool             m_paused               { false };
 		int              m_countdown_frame      { 0 };
 		bool             m_fading_out           { false };
@@ -126,8 +129,6 @@ public:
 		float            m_current_fade_opacity { 1.f };
 		bool             m_finished             { false }; // true - does not render, marked to delete
 		bool             m_close_pending        { false }; // will go to m_finished next render
-		const float      m_window_height_base   = 56.0f;
-		const float      m_window_width_base    = 450.0f;
 		float            m_window_width_offset;
 		float            m_window_height        { 56.0f };  
 		float            m_window_width         { 450.0f };
@@ -161,6 +162,19 @@ public:
 		std::string m_print_info { std::string() };
 	};
 
+	class SlicingWarningNotification : public PopNotification
+	{
+	public:
+		SlicingWarningNotification(const NotificationData& n, const int id, wxEvtHandler* evt_handler) : PopNotification(n, id, evt_handler) {}
+		void        set_object_id(size_t id) { object_id = id; }
+		size_t      get_object_id() { return object_id; }
+		void        set_warning_step(int ws) { warning_step = ws; }
+		int         get_warning_step() { return warning_step; }
+	protected:
+		size_t object_id;
+		int    warning_step;
+	};
+
 	NotificationManager(wxEvtHandler* evt_handler);
 	~NotificationManager();
 
@@ -173,7 +187,7 @@ public:
 	// creates Slicing Error notification with custom text
 	void push_error_notification(const std::string& text, GLCanvas3D& canvas);
 	// creates Slicing Warning notification with custom text
-	void push_warning_notification(const std::string& text, GLCanvas3D& canvas);
+	void push_slicing_warning_notification(const std::string& text, bool gray, GLCanvas3D& canvas, size_t oid, int warning_step);
 	//void push_error_notification(const std::string& text, GLCanvas3D& canvas);
 	//void push_slicing_error_notification(const std::string& text, GLCanvas3D& canvas);
 	void push_plater_error_notification(const std::string& text, GLCanvas3D& canvas);
@@ -183,14 +197,17 @@ public:
 	// creates special notification slicing complete
 	// if large = true prints printing time and export button 
 	void push_slicing_complete_notification(GLCanvas3D& canvas, int timestamp, bool large);
+	void cancel_slicing_complete_notification();
 	void set_slicing_complete_print_time(std::string info);
 	void set_slicing_complete_large(bool large);
 	// renders notifications in queue and deletes expired ones
 	void render_notifications(GLCanvas3D& canvas);
 	//  marks slicing errors and warings as gray
-	void set_error_gray(bool g);
+	void set_all_slicing_errors_gray(bool g);
+	void set_all_slicing_warnings_gray(bool g);
+	void set_slicing_warning_gray(const std::string& text, bool g);
 	// imidietly stops showing slicing errors
-	void clear_error();
+	void clear_slicing_errors_and_warnings();
 	void dpi_changed();
 private:
 	//pushes notification into the queue of notifications that are rendered

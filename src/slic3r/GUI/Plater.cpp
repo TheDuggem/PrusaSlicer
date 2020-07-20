@@ -2864,7 +2864,8 @@ unsigned int Plater::priv::update_background_process(bool force_validation, bool
 		// The state of the Print changed, and it is non-zero. Let's validate it and give the user feedback on errors.
         std::string err = this->background_process.validate();
         if (err.empty()) {
-			notification_manager->set_error_gray(true);
+			notification_manager->set_all_slicing_errors_gray(true);
+			notification_manager->set_all_slicing_warnings_gray(true);
             if (invalidated != Print::APPLY_STATUS_UNCHANGED && this->background_processing_enabled())
                 return_state |= UPDATE_BACKGROUND_PROCESS_RESTART;
         } else {
@@ -3458,11 +3459,11 @@ void Plater::priv::on_slicing_update(SlicingStatusEvent &evt)
         }
         // Now process state.warnings.
 		for (auto const& warning : state.warnings) {
-			notification_manager->push_warning_notification(warning.message, *q->get_current_canvas3D());
+			notification_manager->push_slicing_warning_notification(warning.message, !warning.current, *q->get_current_canvas3D(), object_id.id, warning_step);
 		}
     }
 	// only for testing warning purpose
-	notification_manager->push_warning_notification(evt.status.text, *q->get_current_canvas3D());
+	//notification_manager->push_slicing_warning_notification(evt.status.text, *q->get_current_canvas3D());
 }
 
 void Plater::priv::on_slicing_completed(wxCommandEvent & evt)
@@ -5069,7 +5070,8 @@ void Plater::reslice()
     // update type of preview
     p->preview->update_view_type(true);
 
-	p->notification_manager->clear_error();
+	p->notification_manager->clear_slicing_errors_and_warnings();
+	p->notification_manager->cancel_slicing_complete_notification();
 }
 
 void Plater::reslice_SLA_supports(const ModelObject &object, bool postpone_error_messages)
