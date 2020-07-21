@@ -840,9 +840,12 @@ void NotificationManager::render_notifications(GLCanvas3D& canvas)
 	float    current_height = 0.0f;
 	bool     request_next_frame = false;
 	bool     render_main = false;
-	bool     hovered = false;
+	bool     hovered = false;	
+	sort_notifications();
 	// iterate thru notifications and render them / erease them
+	BOOST_LOG_TRIVIAL(error) << "===";
 	for (auto it = m_pop_notifications.begin(); it != m_pop_notifications.end();) {
+		BOOST_LOG_TRIVIAL(error) << (int)(*it)->get_data().level;
 		if ((*it)->get_finished()) {
 			delete (*it);
 			it = m_pop_notifications.erase(it);
@@ -893,26 +896,22 @@ void NotificationManager::render_notifications(GLCanvas3D& canvas)
 	//	this->render_main_window(canvas, current_height);
 }
 
-void NotificationManager::render_main_window(GLCanvas3D& canvas, float height)
+
+void NotificationManager::sort_notifications()
 {
-	Size             cnv_size = canvas.get_canvas_size();
-	ImGuiWrapper&    imgui = *wxGetApp().imgui();
-	bool             shown = true;
-	std::string      name = "Notifications";
-	imgui.set_next_window_pos(1.0f * (float)cnv_size.get_width(), 1.0f * (float)cnv_size.get_height(), ImGuiCond_Always, 1.0f, 1.0f);
-	imgui.set_next_window_size(200, height + 30, ImGuiCond_Always);
-	if (imgui.begin(name, &shown, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus)) {
-		if (shown) {
-		} else {
-			// close all
-			for(PopNotification* notification : m_pop_notifications)
-			{
-				notification->close();
-			}
-			canvas.set_as_dirty();
-		}
+	std::sort(m_pop_notifications.begin(), m_pop_notifications.end(), [](PopNotification* n1, PopNotification* n2) {
+		int n1l = (n1->get_is_gray() ? 0 : (int)n1->get_data().level);
+		int n2l = (n2->get_is_gray() ? 0 : (int)n2->get_data().level);
+		return (n1l < n2l);
+		});
+	/*
+	for (auto it = m_pop_notifications.begin(); it != m_pop_notifications.end(); ++it)
+	{
+		(*it)->get_type();
+		if (it != m_pop_notifications.end() - 1)
+			 std::rotate(it, it + 1, m_pop_notifications.end());
 	}
-	imgui.end();
+	*/
 }
 
 bool NotificationManager::find_older(NotificationType type, const std::string& text)

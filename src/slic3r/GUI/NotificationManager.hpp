@@ -44,12 +44,12 @@ enum class NotificationType
 class NotificationManager
 {
 public:
-	enum class NotificationLevel
+	enum class NotificationLevel : int
 	{
-		RegularNotification,
-		ErrorNotification,
-		WarningNotification,
-		ImportantNotification
+		ErrorNotification =     4,
+		WarningNotification =   3,
+		ImportantNotification = 2,
+		RegularNotification   = 1,
 	};
 	// duration 0 means not disapearing
 	struct NotificationData {
@@ -87,10 +87,17 @@ public:
 		float                  get_current_top() const { return m_top_x; }
 		const NotificationType get_type() const { return m_data.type; }
 		const NotificationData get_data() const { return m_data;  }
+		const bool             get_is_gray() const { return m_is_gray; }
 		void                   substract_remaining_time() { m_remaining_time--; }
 		void                   set_gray(bool g) { m_is_gray = g; }
 		void                   set_paused(bool p) { m_paused = p; }
 		bool                   compare_text(const std::string& text);
+		/*inline bool operator < (const PopNotification& notif)  { return (m_data.level < notif.get_data().level); }
+		inline bool operator > (const PopNotification& notif)  { return (m_data.level > notif.get_data().level); }
+		inline bool operator == (const PopNotification& notif) { return (m_data.level == notif.get_data().level); }
+		inline bool operator != (const PopNotification& notif) { return (m_data.level != notif.get_data().level); }
+		*/
+
 	protected:
 		void         init();
 		virtual void set_next_window_size(ImGuiWrapper& imgui);
@@ -202,6 +209,7 @@ public:
 	void set_slicing_complete_large(bool large);
 	// renders notifications in queue and deletes expired ones
 	void render_notifications(GLCanvas3D& canvas);
+	void sort_notifications();
 	//  marks slicing errors and warings as gray
 	void set_all_slicing_errors_gray(bool g);
 	void set_all_slicing_warnings_gray(bool g);
