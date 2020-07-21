@@ -917,16 +917,17 @@ void NotificationManager::render_main_window(GLCanvas3D& canvas, float height)
 
 bool NotificationManager::find_older(NotificationType type, const std::string& text)
 {
+	/*
 	// if type that allows multiple notifications of same type - check for same text
 	if (type == NotificationType::CustomNotification || type == NotificationType::SlicingWarning || type == NotificationType::PlaterWarning)
 	{
-
-	}
-		return false;
+	return false;
+	}*/
+		
 	for (auto it = m_pop_notifications.begin(); it != m_pop_notifications.end(); ++it)
 	{
 		if((*it)->get_type() == type && !(*it)->get_finished()) {
-			if (type == NotificationType::CustomNotification || type == NotificationType::SlicingWarning) {
+			if (type == NotificationType::CustomNotification || type == NotificationType::SlicingWarning || type == NotificationType::PlaterWarning) {
 				if (!(*it)->compare_text(text))
 					continue;
 			}
