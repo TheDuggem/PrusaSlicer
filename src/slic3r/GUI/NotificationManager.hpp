@@ -173,10 +173,10 @@ public:
 	{
 	public:
 		SlicingWarningNotification(const NotificationData& n, const int id, wxEvtHandler* evt_handler) : PopNotification(n, id, evt_handler) {}
-		void        set_object_id(size_t id) { object_id = id; }
-		size_t      get_object_id() { return object_id; }
-		void        set_warning_step(int ws) { warning_step = ws; }
-		int         get_warning_step() { return warning_step; }
+		void         set_object_id(size_t id) { object_id = id; }
+		const size_t get_object_id() { return object_id; }
+		void         set_warning_step(int ws) { warning_step = ws; }
+		const int    get_warning_step() { return warning_step; }
 	protected:
 		size_t object_id;
 		int    warning_step;
@@ -224,7 +224,8 @@ private:
 	bool push_notification_data(NotificationManager::PopNotification* notification, GLCanvas3D& canvas, int timestamp);
 	void render_main_window(GLCanvas3D& canvas, float height);
 	//finds older notification of same type and moves it to the end of queue. returns true if found
-	bool find_older(NotificationType type, const std::string& text);
+	bool find_older(NotificationManager::PopNotification* notification);
+
 	void print_to_console() const;
 
 	wxEvtHandler*                m_evt_handler;
