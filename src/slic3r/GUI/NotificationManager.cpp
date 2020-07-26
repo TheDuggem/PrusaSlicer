@@ -681,7 +681,8 @@ void NotificationManager::push_slicing_warning_notification(const std::string& t
 	NotificationManager::SlicingWarningNotification* notification = new NotificationManager::SlicingWarningNotification(data, m_next_id++, m_evt_handler);
 	notification->set_object_id(oid);
 	notification->set_warning_step(warning_step);
-	if (push_notification_data(notification, canvas, 0)) {
+	if 
+		(push_notification_data(notification, canvas, 0)) {
 		notification->set_gray(gray);		
 	}
 	else {
@@ -899,8 +900,12 @@ void NotificationManager::render_notifications(GLCanvas3D& canvas)
 void NotificationManager::sort_notifications()
 {
 	std::sort(m_pop_notifications.begin(), m_pop_notifications.end(), [](PopNotification* n1, PopNotification* n2) {
-		int n1l = (n1->get_is_gray() ? 0 : (int)n1->get_data().level);
-		int n2l = (n2->get_is_gray() ? 0 : (int)n2->get_data().level);
+		//int n1l = (n1->get_is_gray() ? 0 : (int)n1->get_data().level);
+		//int n2l = (n2->get_is_gray() ? 0 : (int)n2->get_data().level);
+		int n1l = (int)n1->get_data().level;
+		int n2l = (int)n2->get_data().level;
+		if (n1l == n2l && n1->get_is_gray() && !n2->get_is_gray())
+			return true;
 		return (n1l < n2l);
 		});
 }
